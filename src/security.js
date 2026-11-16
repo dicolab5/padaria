@@ -2,8 +2,8 @@ import crypto from "node:crypto";
 import { AppError } from "./errors.js";
 const rolePermissions = {
   admin: ["*"],
-  gerente: ["dashboard:read", "catalog:read", "catalog:write", "stock:write", "sales:write", "people:read", "people:write", "purchases:write", "finance:read", "finance:write", "reports:read", "settings:write"],
-  caixa: ["dashboard:read", "catalog:read", "sales:write", "people:read"],
+  gerente: ["dashboard:read", "catalog:read", "catalog:write", "stock:write", "sales:write", "people:read", "people:write", "purchases:write", "finance:read", "finance:write", "credit:read", "credit:write", "reports:read", "settings:write"],
+  caixa: ["dashboard:read", "catalog:read", "sales:write", "people:read", "credit:read", "credit:write"],
   estoque: ["dashboard:read", "catalog:read", "stock:write", "people:read"],
 };
 export function requireAuth(req, _res, next) {
