@@ -1,0 +1,4 @@
+.billing-note{display:inline-flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px;padding:11px 17px;border-radius:12px;background:#fff;color:#596861;font-size:13px}.billing-note b{color:var(--green)}
+.plan .price{margin-bottom:0}.annual-price{margin:0 0 16px;color:#9a642d;font-size:14px;font-weight:700}
+.plan-extras{padding:0 max(7vw,28px) 90px;text-align:center}.plan-extras h2{font-family:Georgia,serif;font-size:clamp(32px,4vw,48px);margin:12px 0 30px}.extras-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;max-width:1100px;margin:auto}.extras-grid article{display:flex;flex-direction:column;gap:7px;padding:22px;background:#fff;border:1px solid var(--line);border-radius:15px}.extras-grid strong{color:#9a642d}
+@media(max-width:850px){.extras-grid{grid-template-columns:1fr 1fr}}@media(max-width:520px){.extras-grid{grid-template-columns:1fr}}
