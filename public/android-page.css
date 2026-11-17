@@ -1,0 +1,5 @@
+.app-hero{align-items:center}
+.app-preview{justify-self:center;margin:0;text-align:center}
+.app-preview img{display:block;width:min(100%,372px);height:auto;border:8px solid #263e34;border-radius:34px;background:#f7f2e9;box-shadow:0 28px 65px rgba(35,58,48,.22)}
+.app-preview figcaption{margin-top:12px;color:#6e776f;font-size:.9rem}
+@media(max-width:760px){.app-preview img{width:min(86vw,372px)}}

@@ -14,11 +14,13 @@ const audit=(db,req,action,entity,id,metadata={})=>db.query("INSERT INTO audit_l
 
 const loginLimit=rateLimit({windowMs:15*60*1000,limit:8,standardHeaders:"draft-8",legacyHeaders:false,message:{error:{code:"RATE_LIMIT",message:"Muitas tentativas. Aguarde 15 minutos."}}});
 router.post("/auth/login",loginLimit,validate(z.object({email:z.string().trim().toLowerCase().email().max(254),password:z.string().min(8).max(200)})),asyncHandler(async(req,res)=>{
-  const r=await pool.query("SELECT u.id,u.tenant_id,u.name,u.email,u.password_hash,u.role,u.active,u.failed_attempts,u.locked_until FROM users u JOIN tenants t ON t.id=u.tenant_id AND t.active WHERE lower(u.email)=$1 LIMIT 1",[req.body.email]); const u=r.rows[0];
+  const r=await pool.query("SELECT u.id,u.tenant_id,u.name,u.email,u.password_hash,u.role,u.active,u.failed_attempts,u.locked_until,t.subscription_status,t.trial_ends_at FROM users u JOIN tenants t ON t.id=u.tenant_id AND t.active WHERE lower(u.email)=$1 LIMIT 1",[req.body.email]); const u=r.rows[0];
   if(!u||!u.active||u.locked_until&&new Date(u.locked_until)>new Date()||!(await verifyPassword(u.password_hash,req.body.password))){
     if(u){const attempts=u.failed_attempts+1;await pool.query("UPDATE users SET failed_attempts=$1,locked_until=CASE WHEN $1>=5 THEN now()+interval '15 minutes' ELSE locked_until END WHERE id=$2",[attempts,u.id]);}
     throw new AppError(401,"INVALID_CREDENTIALS","E-mail ou senha inválidos.");
   }
+  if(u.subscription_status==="trial"&&u.trial_ends_at&&new Date(u.trial_ends_at)<=new Date())throw new AppError(403,"TRIAL_EXPIRED","Seu período de degustação terminou. Escolha um plano para continuar.");
+  if(["past_due","cancelled"].includes(u.subscription_status))throw new AppError(403,"SUBSCRIPTION_INACTIVE","O acesso desta padaria está suspenso. Entre em contato com o atendimento.");
   await new Promise((ok,fail)=>req.session.regenerate(e=>e?fail(e):ok())); req.session.user={id:u.id,tenantId:u.tenant_id,name:u.name,email:u.email,role:u.role};
   const csrf=issueCsrf(req); await pool.query("UPDATE users SET failed_attempts=0,locked_until=NULL,last_login_at=now() WHERE id=$1",[u.id]); res.json({user:req.session.user,csrf});
 }));
