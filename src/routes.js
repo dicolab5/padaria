@@ -31,6 +31,25 @@ router.get("/dashboard",authorize("dashboard:read"),asyncHandler(async(req,res)=
  pool.query("SELECT p.name,sum(si.quantity)::numeric quantity,sum(si.total)::numeric revenue FROM sale_items si JOIN sales s ON s.id=si.sale_id JOIN products p ON p.id=si.product_id WHERE s.tenant_id=$1 AND s.status='completed' GROUP BY p.id ORDER BY revenue DESC LIMIT 5",[t]),
  pool.query("SELECT number,total,payment_method,created_at FROM sales WHERE tenant_id=$1 ORDER BY created_at DESC LIMIT 5",[t])]);res.json({metrics:metrics.rows[0],lowStock:low.rows,topProducts:top.rows,recentSales:recent.rows});}));
 
+const dashboardSalesQuery=z.object({
+  paymentMethod:z.enum(["cash","pix","debit","credit","store_credit"]).optional(),
+  customerId:uuid.optional(),
+  productId:uuid.optional(),
+  from:z.string().date(),
+  to:z.string().date(),
+}).refine(value=>value.from<=value.to,{message:"A data inicial deve ser anterior à data final.",path:["from"]});
+router.get("/dashboard/sales-chart",authorize("dashboard:read"),validate(dashboardSalesQuery,"query"),asyncHandler(async(req,res)=>{
+  const q=req.validatedQuery;
+  const result=await pool.query(`SELECT s.payment_method,count(*)::int sales,COALESCE(sum(s.total),0)::numeric total
+    FROM sales s
+    WHERE s.tenant_id=$1 AND s.status='completed' AND s.created_at::date BETWEEN $2 AND $3
+      AND ($4::varchar IS NULL OR s.payment_method=$4)
+      AND ($5::uuid IS NULL OR s.customer_id=$5)
+      AND ($6::uuid IS NULL OR EXISTS(SELECT 1 FROM sale_items si WHERE si.sale_id=s.id AND si.product_id=$6))
+    GROUP BY s.payment_method ORDER BY total DESC`,[tenantId(req),q.from,q.to,q.paymentMethod||null,q.customerId||null,q.productId||null]);
+  res.json({from:q.from,to:q.to,groups:result.rows});
+}));
+
 router.get("/categories",authorize("catalog:read"),asyncHandler(async(req,res)=>{const r=await pool.query("SELECT c.*,count(p.id)::int product_count FROM categories c LEFT JOIN products p ON p.category_id=c.id WHERE c.tenant_id=$1 GROUP BY c.id ORDER BY c.name",[tenantId(req)]);res.json(r.rows);}));
 router.post("/categories",authorize("catalog:write"),validate(z.object({name:z.string().trim().min(2).max(80),description:z.string().trim().max(300).optional()})),asyncHandler(async(req,res)=>{const r=await pool.query("INSERT INTO categories(tenant_id,name,description) VALUES($1,$2,$3) RETURNING *",[tenantId(req),req.body.name,req.body.description||null]);await audit(pool,req,"create","category",r.rows[0].id);res.status(201).json(r.rows[0]);}));
 
