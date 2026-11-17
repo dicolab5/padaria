@@ -1,0 +1,16 @@
+.system-access {
+  display: block;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #eee9e1;
+  color: #65766c;
+  text-align: center;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+}
+.system-access:hover { color: #c18a55; }
+.back-site { display: inline-block; margin-bottom: 18px; color: #65766c; text-decoration: none; font-size: 12px; font-weight: 700; }
+.back-site:hover { color: #c18a55; }
+.mt-18 { margin-top: 18px; }
+.mt-22 { margin-top: 22px; }
