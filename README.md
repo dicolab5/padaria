@@ -2,6 +2,8 @@
 
 Aplicação web para gestão de padaria, migrada do protótipo React/TypeScript para Node.js, HTML, CSS e JavaScript puro, com PostgreSQL.
 
+O planejamento comercial e a ordem das próximas evoluções estão documentados em [ROADMAP.md](./ROADMAP.md).
+
 ## Executar localmente
 
 1. Instale Node.js 20+ e PostgreSQL 15+.
@@ -44,7 +46,7 @@ Com Node.js 24, use `$env:NODE_USE_SYSTEM_CA='1'` antes de `npm install` para ap
 
 A área global fica em `/system.html` e utiliza credenciais e permissões separadas dos administradores de cada padaria. Ela permite consultar indicadores globais, bloquear empresas, bloquear usuários, redefinir senhas e consultar a auditoria administrativa.
 
-Para criar o primeiro administrador local, defina `SYSTEM_ADMIN_NAME`, `SYSTEM_ADMIN_EMAIL` e uma `SYSTEM_ADMIN_PASSWORD` com ao menos 14 caracteres no `.env`, depois execute `npm run db:seed-system`. O comando é idempotente e não altera um administrador já existente.
+Para criar o primeiro administrador local, defina `SYSTEM_ADMIN_NAME`, `SYSTEM_ADMIN_EMAIL` e uma `SYSTEM_ADMIN_PASSWORD` forte com ao menos 12 caracteres no `.env`, depois execute `npm run db:seed-system`. O comando é idempotente e não altera um administrador já existente.
 
 ## Deploy no Render
 
