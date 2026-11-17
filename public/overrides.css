@@ -37,3 +37,7 @@
 .legend-color-0 { background: #344b3f; }.legend-color-1 { background: #d29a5b; }.legend-color-2 { background: #6f8f80; }.legend-color-3 { background: #a76d58; }.legend-color-4 { background: #8d7bad; }
 @media(max-width:1200px) { .sales-filters { grid-template-columns: repeat(3,1fr); }.filter-actions { align-self: end; } }
 @media(max-width:760px) { .analytics-head { flex-direction: column; }.chart-summary { width: 100%; text-align: left; }.sales-filters { grid-template-columns: 1fr; }.filter-actions button { flex: 1; }.pie-layout { grid-template-columns: 1fr; gap: 12px; }.pie-chart { min-height: 230px; }.pie-chart svg { width: 230px; } }
+.check-field { display: flex; align-items: center; gap: 9px; padding: 13px; border: 1px solid #ded9d0; border-radius: 11px; color: #5f625e; font-size: 13px; font-weight: 700; }
+.check-field input { width: 18px; height: 18px; accent-color: #344b3f; }
+.credit-metrics { grid-template-columns: 1fr 1fr; margin: 16px 0; }
+.credit-metrics .card { padding: 14px; }

@@ -8,6 +8,7 @@ import { pool } from "./src/db.js";
 import { router } from "./src/routes.js";
 import { PgSessionStore } from "./src/session-store.js";
 import { systemRouter } from "./src/system-routes.js";
+import { customerRouter } from "./src/customer-routes.js";
 
 const app=express(); app.disable("x-powered-by"); app.set("trust proxy",config.TRUST_PROXY);
 app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],imgSrc:["'self'","data:","https://images.unsplash.com"],styleSrc:["'self'"],scriptSrc:["'self'"],connectSrc:["'self'"],objectSrc:["'none'"],frameAncestors:["'none'"]}},referrerPolicy:{policy:"no-referrer"}}));
@@ -15,6 +16,7 @@ app.use(express.json({limit:"100kb",strict:true})); app.use(express.urlencoded({
 app.use(session({store:new PgSessionStore(pool),name:"pg.sid",secret:config.SESSION_SECRET,resave:false,saveUninitialized:false,rolling:true,cookie:{httpOnly:true,secure:config.NODE_ENV==="production",sameSite:"lax",maxAge:8*60*60*1000}}));
 app.get("/health",async(_req,res)=>{try{await pool.query("SELECT 1");res.status(200).json({status:"ok"});}catch{res.status(503).json({status:"unavailable"});}});
 app.use("/api/system",rateLimit({windowMs:60_000,limit:180,standardHeaders:"draft-8",legacyHeaders:false}),systemRouter);
+app.use("/api/customer",rateLimit({windowMs:60_000,limit:120,standardHeaders:"draft-8",legacyHeaders:false}),customerRouter);
 app.use("/api",rateLimit({windowMs:60_000,limit:240,standardHeaders:"draft-8",legacyHeaders:false}),router);
 app.use(express.static(path.resolve("public"),{index:"index.html",maxAge:config.NODE_ENV==="production"?"1h":0}));
 app.use("/api",(_req,res)=>res.status(404).json({error:{code:"NOT_FOUND",message:"Rota não encontrada."}}));
