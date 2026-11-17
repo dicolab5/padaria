@@ -4,22 +4,22 @@ import { z } from "zod";
 import { pool } from "./db.js";
 import { AppError, asyncHandler } from "./errors.js";
 import { issueCsrf, verifyCsrf } from "./security.js";
-import { verifyPassword } from "./passwords.js";
+import { isValidCpf, normalizeCpf } from "./cpf.js";
 
 export const customerRouter=express.Router();
 const loginLimit=rateLimit({windowMs:15*60*1000,limit:8,standardHeaders:"draft-8",legacyHeaders:false,message:{error:{code:"RATE_LIMIT",message:"Muitas tentativas. Aguarde 15 minutos."}}});
-const loginSchema=z.object({bakeryCode:z.string().trim().min(4).max(20).transform(value=>value.toUpperCase()),email:z.string().trim().toLowerCase().email().max(254),password:z.string().min(12).max(200)});
+const loginSchema=z.object({email:z.string().trim().toLowerCase().email().max(254),cpf:z.string().trim().max(20).transform(normalizeCpf)}).refine(value=>isValidCpf(value.cpf),{message:"CPF inválido.",path:["cpf"]});
 const requireCustomer=(req,_res,next)=>req.session?.customer?next():next(new AppError(401,"CUSTOMER_AUTH_REQUIRED","Entre na área do cliente para continuar."));
 
 customerRouter.post("/auth/login",loginLimit,asyncHandler(async(req,res)=>{
   const parsed=loginSchema.safeParse(req.body);
-  if(!parsed.success)throw new AppError(422,"VALIDATION_ERROR","Confira o código da padaria, e-mail e senha.");
-  const {bakeryCode,email,password}=parsed.data;
-  const result=await pool.query(`SELECT c.id,c.tenant_id,c.name,c.email,c.portal_password_hash,c.portal_active,c.portal_failed_attempts,c.portal_locked_until,t.name bakery_name
+  if(!parsed.success)throw new AppError(422,"VALIDATION_ERROR","Confira o e-mail e o CPF.");
+  const {email,cpf}=parsed.data;
+  const result=await pool.query(`SELECT c.id,c.tenant_id,c.name,c.email,c.portal_active,c.portal_failed_attempts,c.portal_locked_until,t.name bakery_name
     FROM customers c JOIN tenants t ON t.id=c.tenant_id AND t.active
-    WHERE lower(t.portal_code)=lower($1) AND lower(c.email)=$2 LIMIT 1`,[bakeryCode,email]);
-  const customer=result.rows[0];
-  const denied=!customer||!customer.portal_active||!customer.portal_password_hash||(customer.portal_locked_until&&new Date(customer.portal_locked_until)>new Date())||!(await verifyPassword(customer.portal_password_hash,password));
+    WHERE lower(c.email)=$1 AND regexp_replace(COALESCE(c.document,''),'[^0-9]','','g')=$2 AND c.portal_active LIMIT 2`,[email,cpf]);
+  const customer=result.rowCount===1?result.rows[0]:null;
+  const denied=!customer||(customer.portal_locked_until&&new Date(customer.portal_locked_until)>new Date());
   if(denied){if(customer)await pool.query("UPDATE customers SET portal_failed_attempts=portal_failed_attempts+1,portal_locked_until=CASE WHEN portal_failed_attempts+1>=5 THEN now()+interval '15 minutes' ELSE portal_locked_until END WHERE id=$1",[customer.id]);throw new AppError(401,"INVALID_CREDENTIALS","Dados de acesso inválidos.");}
   await new Promise((resolve,reject)=>req.session.regenerate(error=>error?reject(error):resolve()));
   req.session.customer={id:customer.id,tenantId:customer.tenant_id,name:customer.name,email:customer.email,bakeryName:customer.bakery_name};
