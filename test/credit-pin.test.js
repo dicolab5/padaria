@@ -16,3 +16,7 @@ test("PIN possui bloqueio de tentativas e nunca é retornado na listagem",()=>{
   assert.match(routes,/credit_pin_hash IS NOT NULL/);
   assert.doesNotMatch(routes,/SELECT \* FROM customers/);
 });
+
+test("confirmação do PIN pode ser omitida depois do primeiro cadastro",()=>{
+  assert.match(routes,/creditPinConfirmation:creditPin\.nullable\(\)\.optional\(\)/);
+});
