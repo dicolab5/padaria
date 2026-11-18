@@ -62,6 +62,7 @@ Oferta de lançamento para os primeiros 20 a 30 clientes, com valor garantido po
 - [ ] Exibir dentro do sistema o plano, dias restantes e vencimento.
 - [ ] Enviar avisos no 4º e no 6º dia da degustação.
 - [ ] Criar jornada de escolha do plano ao final da degustação.
+- [x] Permitir que o administrador global credite dias e escolha o plano de uma padaria, com motivo e auditoria.
 - [ ] Preservar dados e permitir exportação após o vencimento.
 
 ## Etapa 2 — assinatura e cobrança
