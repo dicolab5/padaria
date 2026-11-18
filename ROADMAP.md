@@ -58,6 +58,7 @@ Oferta de lançamento para os primeiros 20 a 30 clientes, com valor garantido po
 - [x] Cadastro autônomo de uma nova padaria.
 - [x] Degustação integral por 7 dias.
 - [x] Bloqueio de nova sessão quando a degustação termina.
+- [x] Autorização de compras no crediário com PIN individual de 6 dígitos, hash e bloqueio de tentativas.
 - [ ] Exibir dentro do sistema o plano, dias restantes e vencimento.
 - [ ] Enviar avisos no 4º e no 6º dia da degustação.
 - [ ] Criar jornada de escolha do plano ao final da degustação.

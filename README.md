@@ -25,6 +25,7 @@ Em produção, use HTTPS, `NODE_ENV=production`, uma chave de sessão aleatória
 - Validação Zod, limites de corpo e consultas PostgreSQL parametrizadas contra injeção.
 - Saída dinâmica codificada no navegador para reduzir XSS; scripts inline são bloqueados pela CSP.
 - Venda e estoque são processados em transação com `FOR UPDATE`; preços e totais são recalculados no servidor.
+- Compras no crediário exigem PIN individual de 6 dígitos, armazenado somente como hash, com bloqueio temporário após tentativas incorretas.
 - Auditoria de operações críticas sem armazenar senha, token ou dados de cartão.
 
 2FA foi deliberadamente deixado fora do escopo. Dados de cartão não são armazenados; uma futura integração deve usar um provedor PCI-DSS com tokenização.
